@@ -10,7 +10,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkerScheduler.Infrastruct
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkerScheduler.Application", "WorkerScheduler.Application\WorkerScheduler.Application.csproj", "{DD76A505-7BA2-41CC-924E-5333BF2178D0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClassLibrary1WorkerScheduler.Worker", "ClassLibrary1WorkerScheduler.Worker\ClassLibrary1WorkerScheduler.Worker.csproj", "{B53543C7-2452-4014-99C3-BD96FD386ED6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkerScheduler.Worker", "WorkerScheduler.Worker\WorkerScheduler.Worker.csproj", "{B53543C7-2452-4014-99C3-BD96FD386ED6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
