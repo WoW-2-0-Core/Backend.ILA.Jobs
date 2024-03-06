@@ -6,4 +6,9 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\WorkerScheduler.Application\WorkerScheduler.Application.csproj" />
+      <ProjectReference Include="..\WorkerScheduler.Persistence\WorkerScheduler.Persistence.csproj" />
+    </ItemGroup>
+
 </Project>
