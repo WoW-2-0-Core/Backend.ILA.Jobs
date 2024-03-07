@@ -12,5 +12,10 @@ public class WorkerJobExecutionHistoryConfiguration : IEntityTypeConfiguration<W
             .HasOne(history => history.Job)
             .WithMany()
             .HasForeignKey(history => history.JobId);
+        
+        builder
+            .HasOne<WorkerJobExecutionHistoryEntity>()
+            .WithMany(history => history.RetryHistories)
+            .HasForeignKey(history => history.RetryForHistoryId);
     }
 }
