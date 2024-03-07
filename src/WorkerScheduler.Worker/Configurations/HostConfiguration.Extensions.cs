@@ -1,6 +1,7 @@
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using WorkerScheduler.Application.Common.EventBus.Brokers;
+using WorkerScheduler.Application.Common.EventBus.EventSubscribers;
 using WorkerScheduler.Application.Common.Schedulers.Services;
 using WorkerScheduler.Application.Common.Serializers;
 using WorkerScheduler.Domain.Constants;
@@ -112,7 +113,7 @@ public static partial class HostConfiguration
         
         // Register event subscribers
         builder.Services
-            .AddKeyedSingleton<IEventSubscriber, SchedulerEventSubscriber>(EventBusConstants.WorkerEventSubscriber);
+            .AddKeyedSingleton<IEventSubscriber, SchedulerEventSubscriber>(EventBusConstants.SchedulerEventSubscriber);
         
         // Register background services
         builder.Services
@@ -135,6 +136,10 @@ public static partial class HostConfiguration
         // Register event subscribers
         builder.Services
             .AddKeyedSingleton<IEventSubscriber, WorkerEventSubscriber>(EventBusConstants.WorkerEventSubscriber);
+        
+        // Register background services
+        builder.Services
+            .AddHostedService<WorkerBackgroundService>();
         
         return builder;
     }

@@ -1,4 +1,4 @@
-﻿namespace WorkerScheduler.Application.Common.EventBus.Brokers;
+﻿namespace WorkerScheduler.Application.Common.EventBus.EventSubscribers;
 
 /// <summary>
 /// Defines event bus broker functionality

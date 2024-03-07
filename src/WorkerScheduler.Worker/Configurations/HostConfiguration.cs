@@ -14,7 +14,8 @@ public static partial class HostConfiguration
             .AddMediator()
             .AddEventBus()
             .AddPersistence()
-            .AddSchedulerInfrastructure();
+            .AddSchedulerInfrastructure()
+            .AddWorkerInfrastructure();
         
         return new(builder);
     }

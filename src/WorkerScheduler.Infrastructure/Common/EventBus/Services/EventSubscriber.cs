@@ -5,6 +5,7 @@ using Newtonsoft.Json.Serialization;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using WorkerScheduler.Application.Common.EventBus.Brokers;
+using WorkerScheduler.Application.Common.EventBus.EventSubscribers;
 using WorkerScheduler.Application.Common.Serializers;
 using WorkerScheduler.Domain.Common.Events;
 using WorkerScheduler.Infrastructure.Common.EventBus.Settings;

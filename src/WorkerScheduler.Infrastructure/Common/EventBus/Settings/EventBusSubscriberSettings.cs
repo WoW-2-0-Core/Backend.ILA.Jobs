@@ -1,4 +1,5 @@
 ﻿using WorkerScheduler.Application.Common.EventBus.Brokers;
+using WorkerScheduler.Application.Common.EventBus.EventSubscribers;
 
 namespace WorkerScheduler.Infrastructure.Common.EventBus.Settings;
 
