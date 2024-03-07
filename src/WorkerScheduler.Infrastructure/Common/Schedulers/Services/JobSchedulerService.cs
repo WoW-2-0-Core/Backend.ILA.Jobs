@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using WorkerScheduler.Application.Common.EventBus.Brokers;
 using WorkerScheduler.Application.Common.Schedulers.Events;
 using WorkerScheduler.Application.Common.Schedulers.Services;
+using WorkerScheduler.Domain.Common.Events;
 using WorkerScheduler.Domain.Entities;
 using WorkerScheduler.Domain.Enums;
 using WorkerScheduler.Infrastructure.Common.Schedulers.Settings;
@@ -108,8 +109,12 @@ public class JobSchedulerService(
             .Select(
                 async processJobEvent => await eventBusBroker.PublishAsync(
                     processJobEvent, 
-                    _schedulerSettings.BusDeclaration.ExchangeName, 
-                    _schedulerSettings.BusDeclaration.RoutingKey, 
+                    new EventOptions
+                    {
+                        Exchange = _schedulerSettings.BusDeclaration.ExchangeName,
+                        RoutingKey = _schedulerSettings.BusDeclaration.RoutingKey,
+                        CorrelationId = processJobEvent.Id.ToString()
+                    },
                     cancellationToken)
             )
             .ToImmutableList();

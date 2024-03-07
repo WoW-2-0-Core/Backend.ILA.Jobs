@@ -1,4 +1,4 @@
-﻿namespace AirBnB.Application.Common.EventBus.Services;
+﻿namespace WorkerScheduler.Application.Common.EventBus.Services;
 
 /// <summary>
 /// Represents an interface for an event subscriber, allowing for starting and stopping the subscription to events.

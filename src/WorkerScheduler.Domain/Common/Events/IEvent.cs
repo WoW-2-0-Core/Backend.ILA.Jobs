@@ -10,12 +10,12 @@ public interface IEvent : INotification
     /// <summary>
     /// Gets or sets the unique identifier for the event.
     /// </summary>
-    public Guid Id { get; set; }
+    public Guid Id { get; init; }
     
     /// <summary>
     /// Gets or sets the timestamp when the event was created.
     /// </summary>
-    public DateTimeOffset CreatedTime { get; set; }
+    public DateTimeOffset CreatedTime { get; init; }
     
     /// <summary>
     /// Gets or sets a flag indicating whether the event has been redelivered.

@@ -19,9 +19,8 @@ public interface IEventBusBroker
     /// Publishes event to out of process event bus
     /// </summary>
     /// <param name="event">Event to publish</param>
-    /// <param name="exchange">Exchange name</param>
-    /// <param name="routingKey">Routing key</param>
+    /// <param name="eventOptions">Event publishing / execution options</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <typeparam name="TEvent"></typeparam>
-    ValueTask PublishAsync<TEvent>(TEvent @event, string exchange, string routingKey, CancellationToken cancellationToken) where TEvent : Event;
+    ValueTask PublishAsync<TEvent>(TEvent @event, EventOptions eventOptions, CancellationToken cancellationToken) where TEvent : Event;
 }

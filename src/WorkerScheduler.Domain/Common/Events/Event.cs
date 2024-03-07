@@ -3,11 +3,11 @@ namespace WorkerScheduler.Domain.Common.Events;
 /// <summary>
 /// Represents an implementation of the IEvent interface, defining the properties for an event.
 /// </summary>
-public class Event : IEvent
+public record Event : IEvent
 {
-    public Guid Id { get; set; } = Guid.NewGuid();
+    public Guid Id { get; init; } = Guid.NewGuid();
     
-    public DateTimeOffset CreatedTime { get; set; } = DateTimeOffset.UtcNow;
-    
+    public DateTimeOffset CreatedTime { get; init; } = DateTimeOffset.UtcNow;
+
     public bool Redelivered { get; set; }
 }
