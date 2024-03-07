@@ -31,6 +31,20 @@ public class JobScheduler(IWorkerJobRepository workerJobRepository, IEventBusBro
         return failedJobEvents.ToImmutableList();
     }
 
+    public async ValueTask<int> UpdateJobsStatus(
+        IImmutableList<WorkerJobEntity> jobs,
+        WorkerJobStatus status,
+        CancellationToken cancellationToken = default
+    )
+    {
+        // Update job status
+        return await workerJobRepository.UpdateBatchAsync(
+            setPropertyCalls => setPropertyCalls.SetProperty(workerJob => workerJob.Status, valueSelector => status),
+            workerJob => jobs.Any(job => job.Id == workerJob.Id),
+            cancellationToken
+        );
+    }
+
     public async ValueTask PublishJobsAsync(IImmutableList<WorkerJobEntity> jobs, CancellationToken cancellationToken = default)
     {
         // Create process job events
