@@ -11,17 +11,19 @@ using WorkerScheduler.Infrastructure.Common.EventBus.Settings;
 
 namespace WorkerScheduler.Infrastructure.Common.EventBus.Services;
 
-public abstract class EventSubscriber<TEvent> : IEventSubscriber where TEvent : Event
+public abstract class EventSubscriber<TEvent, TEventSubscriber> : IEventSubscriber 
+    where TEvent : Event 
+    where TEventSubscriber : IEventSubscriber
 {
     private readonly IRabbitMqConnectionProvider _rabbitMqConnectionProvider;
-    private readonly EventBusSubscriberSettings<IEventSubscriber> _eventBusSubscriberSettings;
+    private readonly EventBusSubscriberSettings<TEventSubscriber> _eventBusSubscriberSettings;
     private readonly IEnumerable<string> _queueNames;
     private readonly JsonSerializerSettings _jsonSerializerSettings;
     private IEnumerable<EventingBasicConsumer> _consumers = default!;
     protected IChannel Channel = default!;
 
     public EventSubscriber(IRabbitMqConnectionProvider rabbitMqConnectionProvider,
-        IOptions<EventBusSubscriberSettings<IEventSubscriber>> eventBusSubscriberSettings,
+        IOptions<EventBusSubscriberSettings<TEventSubscriber>> eventBusSubscriberSettings,
         IEnumerable<string> queueNames,
         IJsonSerializationSettingsProvider jsonSerializationSettingsProvider)
     {

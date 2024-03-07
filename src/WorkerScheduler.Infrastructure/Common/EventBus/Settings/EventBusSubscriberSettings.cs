@@ -1,4 +1,5 @@
 ﻿using WorkerScheduler.Application.Common.EventBus.Brokers;
+using WorkerScheduler.Application.Common.EventBus.Models;
 
 namespace WorkerScheduler.Infrastructure.Common.EventBus.Settings;
 
@@ -11,4 +12,9 @@ public class EventBusSubscriberSettings<TSubscriber> where TSubscriber : IEventS
     /// Gets prefetch message count
     /// </summary>
     public ushort PrefetchCount { get; init; }
+
+    /// <summary>
+    /// Gets bus declarations
+    /// </summary>
+    public ICollection<BusDeclaration> BusDeclarations { get; init; } = default!;
 }

@@ -1,10 +1,12 @@
 using System.Collections.Immutable;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using WorkerScheduler.Application.Common.EventBus.Brokers;
 using WorkerScheduler.Application.Common.Scheduler.Events;
 using WorkerScheduler.Application.Common.Scheduler.Services;
 using WorkerScheduler.Domain.Entities;
 using WorkerScheduler.Domain.Enums;
+using WorkerScheduler.Infrastructure.Common.Scheduler.Settings;
 using WorkerScheduler.Persistence.Repositories.Interfaces;
 
 namespace WorkerScheduler.Infrastructure.Common.Scheduler.Services;
@@ -12,11 +14,17 @@ namespace WorkerScheduler.Infrastructure.Common.Scheduler.Services;
 /// <summary>
 /// Provides job scheduler functionality.
 /// </summary>
-public class JobSchedulerService(IWorkerJobRepository workerJobRepository, IEventBusBroker eventBusBroker) : IJobSchedulerService
+public class JobSchedulerService(
+    IOptions<SchedulerSettings> schedulerSettings,
+    IWorkerJobRepository workerJobRepository, 
+    IEventBusBroker eventBusBroker
+    ) : IJobSchedulerService
 {
+    private readonly SchedulerSettings _schedulerSettings = schedulerSettings.Value;
+    
     public async ValueTask<List<WorkerJobEntity>> GetAllJobsAsync(CancellationToken cancellationToken = default)
     {
-// Query all jobs
+        // Query all jobs
         return await workerJobRepository.Get().ToListAsync(cancellationToken: cancellationToken);
     }
 
@@ -98,7 +106,11 @@ public class JobSchedulerService(IWorkerJobRepository workerJobRepository, IEven
                 }
             )
             .Select(
-                async processJobEvent => await eventBusBroker.PublishAsync(processJobEvent, "WorkerExchange", "WorkerQueue", cancellationToken)
+                async processJobEvent => await eventBusBroker.PublishAsync(
+                    processJobEvent, 
+                    _schedulerSettings.BusDeclaration.ExchangeName, 
+                    _schedulerSettings.BusDeclaration.RoutingKey, 
+                    cancellationToken)
             )
             .ToImmutableList();
 
