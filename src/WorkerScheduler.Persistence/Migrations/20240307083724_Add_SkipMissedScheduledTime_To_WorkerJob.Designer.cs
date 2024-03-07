@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WorkerScheduler.Persistence.DataContexts;
@@ -11,9 +12,11 @@ using WorkerScheduler.Persistence.DataContexts;
 namespace WorkerScheduler.Persistence.Migrations
 {
     [DbContext(typeof(WorkerDbContext))]
-    partial class WorkerDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240307083724_Add_SkipMissedScheduledTime_To_WorkerJob")]
+    partial class Add_SkipMissedScheduledTime_To_WorkerJob
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
