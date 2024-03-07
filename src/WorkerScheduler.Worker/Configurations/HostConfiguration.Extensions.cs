@@ -1,6 +1,9 @@
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
+using WorkerScheduler.Application.Common.EventBus.Brokers;
 using WorkerScheduler.Application.Common.Serializers;
+using WorkerScheduler.Infrastructure.Common.EventBus.Brokers;
+using WorkerScheduler.Infrastructure.Common.EventBus.Settings;
 using WorkerScheduler.Infrastructure.Common.Serializers;
 using WorkerScheduler.Persistence.DataContexts;
 
@@ -27,6 +30,34 @@ public static partial class HostConfiguration
         builder.Services
             .AddSingleton<IJsonSerializationSettingsProvider, JsonSerializationSettingsProvider>();
 
+        return builder;
+    }
+    
+    /// <summary>
+    /// Adds MediatR services to the application with custom service registrations.
+    /// </summary>
+    /// <param name="builder"></param>
+    /// <returns></returns>
+    private static IHostApplicationBuilder AddMediator(this IHostApplicationBuilder builder)
+    {
+        builder.Services.AddMediatR(cfg => { cfg.RegisterServicesFromAssemblies(Assemblies.ToArray()); });
+
+        return builder;
+    }
+    
+    private static IHostApplicationBuilder AddEventBus(this IHostApplicationBuilder builder)
+    {
+        // Register settings
+        builder.Services
+            .Configure<RabbitMqConnectionSettings>(builder.Configuration.GetSection(nameof(RabbitMqConnectionSettings)));
+        
+        // Register brokers
+        builder.Services
+            .AddSingleton<IRabbitMqConnectionProvider, RabbitMqConnectionProvider>()
+            .AddSingleton<IEventBusBroker, RabbitMqEventBusBroker>();
+
+        // Register event subscribers
+        
         return builder;
     }
 

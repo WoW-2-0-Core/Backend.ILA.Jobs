@@ -11,6 +11,8 @@ public static partial class HostConfiguration
     {
         builder
             .AddSerializers()
+            .AddMediator()
+            .AddEventBus()
             .AddPersistence();
         
         return new(builder);

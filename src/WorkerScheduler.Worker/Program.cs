@@ -1,5 +1,5 @@
-using ClassLibrary1WorkerScheduler.Worker;
-using ClassLibrary1WorkerScheduler.Worker.Configurations;
+using WorkerScheduler.Worker;
+using WorkerScheduler.Worker.Configurations;
 
 var builder = Host.CreateApplicationBuilder(args);
 

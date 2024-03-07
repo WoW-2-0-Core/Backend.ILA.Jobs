@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace ClassLibrary1WorkerScheduler.Worker.Configurations;
+namespace WorkerScheduler.Worker.Configurations;
 
 public static class MigrationExtensions
 {

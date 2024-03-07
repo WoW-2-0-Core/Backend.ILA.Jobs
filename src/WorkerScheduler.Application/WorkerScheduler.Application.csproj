@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
@@ -12,5 +12,11 @@
 
     <ItemGroup>
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+        <PackageReference Include="RabbitMQ.Client" Version="7.0.0-alpha.2" />
     </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Common\EventBus\Services\" />
+    </ItemGroup>
+
 </Project>

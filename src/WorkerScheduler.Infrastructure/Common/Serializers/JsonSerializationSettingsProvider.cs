@@ -1,3 +1,4 @@
+using Force.DeepCloner;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using WorkerScheduler.Application.Common.Serializers;
