@@ -10,7 +10,7 @@ public class WorkerJobExecutionHistoryConfiguration : IEntityTypeConfiguration<W
     {
         builder
             .HasOne(history => history.Job)
-            .WithMany()
+            .WithMany(job => job.ExecutionHistories)
             .HasForeignKey(history => history.JobId);
         
         builder
