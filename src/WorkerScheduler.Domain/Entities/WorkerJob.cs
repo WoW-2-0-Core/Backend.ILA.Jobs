@@ -1,4 +1,4 @@
-using NCrontab;
+using Quartz;
 using WorkerScheduler.Domain.Common.Entities;
 using WorkerScheduler.Domain.Enums;
 
@@ -29,7 +29,7 @@ public class WorkerJobEntity : IEntity
     /// <summary>
     /// Gets or sets job schedule in cron format
     /// </summary>
-    public CrontabSchedule CronSchedule { get; set; } = default!;
+    public CronExpression CronSchedule { get; set; } = default!;
 
     /// <summary>
     /// Gets or sets job execution histories
