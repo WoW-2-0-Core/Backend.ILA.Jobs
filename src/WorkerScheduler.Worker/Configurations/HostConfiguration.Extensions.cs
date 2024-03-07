@@ -1,11 +1,15 @@
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using WorkerScheduler.Application.Common.EventBus.Brokers;
+using WorkerScheduler.Application.Common.Scheduler.Services;
 using WorkerScheduler.Application.Common.Serializers;
 using WorkerScheduler.Infrastructure.Common.EventBus.Brokers;
 using WorkerScheduler.Infrastructure.Common.EventBus.Settings;
+using WorkerScheduler.Infrastructure.Common.Scheduler.Services;
 using WorkerScheduler.Infrastructure.Common.Serializers;
 using WorkerScheduler.Persistence.DataContexts;
+using WorkerScheduler.Persistence.Repositories;
+using WorkerScheduler.Persistence.Repositories.Interfaces;
 using WorkerScheduler.Worker.Data;
 
 namespace WorkerScheduler.Worker.Configurations;
@@ -78,6 +82,28 @@ public static partial class HostConfiguration
                 options.EnableSensitiveDataLogging();
             }
         );
+
+        return builder;
+    }
+    
+    /// <summary>
+    /// Adds job scheduler 
+    /// </summary>
+    /// <param name="builder"></param>
+    /// <returns></returns>
+    private static IHostApplicationBuilder AddSchedulerInfrastructure(this IHostApplicationBuilder builder)
+    {
+        // Register repositories
+        builder.Services
+            .AddScoped<IWorkerJobRepository, WorkerJobRepository>()
+            .AddScoped<IWorkerJobExecutionHistoryRepository, WorkerJobExecutionHistoryRepository>();
+        
+        // Register services
+        builder.Services
+            .AddScoped<IJobSchedulerService, JobSchedulerService>();
+        
+        // Register background services
+        builder.Services.AddHostedService<SchedulerBackgroundService>();
 
         return builder;
     }

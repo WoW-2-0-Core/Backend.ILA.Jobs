@@ -7,8 +7,10 @@ namespace WorkerScheduler.Application.Common.Scheduler.Services;
 /// <summary>
 /// Defines the contract for a job scheduler.
 /// </summary>
-public interface IJobScheduler
+public interface IJobSchedulerService
 {
+    ValueTask<(Guid jobId, DateTimeOffset nextJobScheduledTime)?> GetNextScheduledJob(CancellationToken cancellationToken = default);
+
     /// <summary>
     /// Gets failed or scheduled jobs
     /// </summary>
@@ -22,13 +24,12 @@ public interface IJobScheduler
     /// <param name="jobs">Jobs to update status</param>
     /// <param name="status">Job status</param>
     /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>Number of updated jobs</returns>
-    ValueTask<int> UpdateJobsStatus(IImmutableList<WorkerJobEntity> jobs, WorkerJobStatus status, CancellationToken cancellationToken = default);
+    ValueTask UpdateJobsStatus(WorkerJobStatus status, CancellationToken cancellationToken = default, params WorkerJobEntity[] jobs);
 
     /// <summary>
     /// Publishes jobs to the queue
     /// </summary>
     /// <param name="jobs">Jobs to publish</param>
     /// <param name="cancellationToken">Cancellation token</param>
-    ValueTask PublishJobsAsync(IImmutableList<WorkerJobEntity> jobs, CancellationToken cancellationToken = default);
+    ValueTask PublishJobsAsync(CancellationToken cancellationToken = default, params WorkerJobEntity[] jobs);
 }

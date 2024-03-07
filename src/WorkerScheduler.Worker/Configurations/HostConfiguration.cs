@@ -13,7 +13,8 @@ public static partial class HostConfiguration
             .AddSerializers()
             .AddMediator()
             .AddEventBus()
-            .AddPersistence();
+            .AddPersistence()
+            .AddSchedulerInfrastructure();
         
         return new(builder);
     }
