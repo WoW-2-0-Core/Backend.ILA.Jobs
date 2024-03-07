@@ -1,4 +1,4 @@
-namespace ClassLibrary1WorkerScheduler.Worker.Configurations;
+namespace WorkerScheduler.Worker.Configurations;
 
 public static partial class HostConfiguration
 {
@@ -9,7 +9,9 @@ public static partial class HostConfiguration
     /// <returns>Application builder</returns>
     public static ValueTask<IHostApplicationBuilder> ConfigureAsync(this IHostApplicationBuilder builder)
     {
-        builder.AddPersistence();
+        builder
+            .AddSerializers()
+            .AddPersistence();
         
         return new(builder);
     }

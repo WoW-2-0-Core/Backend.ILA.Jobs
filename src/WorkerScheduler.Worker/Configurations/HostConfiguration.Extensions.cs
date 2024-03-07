@@ -1,8 +1,10 @@
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
+using WorkerScheduler.Application.Common.Serializers;
+using WorkerScheduler.Infrastructure.Common.Serializers;
 using WorkerScheduler.Persistence.DataContexts;
 
-namespace ClassLibrary1WorkerScheduler.Worker.Configurations;
+namespace WorkerScheduler.Worker.Configurations;
 
 public static partial class HostConfiguration
 {
@@ -12,6 +14,20 @@ public static partial class HostConfiguration
     {
         Assemblies = Assembly.GetExecutingAssembly().GetReferencedAssemblies().Select(Assembly.Load).ToList();
         Assemblies.Add(Assembly.GetExecutingAssembly());
+    }
+    
+    /// <summary>
+    /// Configures serializers
+    /// </summary>
+    /// <param name="builder"></param>
+    /// <returns></returns>
+    private static IHostApplicationBuilder AddSerializers(this IHostApplicationBuilder builder)
+    {
+        // Register brokers
+        builder.Services
+            .AddSingleton<IJsonSerializationSettingsProvider, JsonSerializationSettingsProvider>();
+
+        return builder;
     }
 
     /// <summary>

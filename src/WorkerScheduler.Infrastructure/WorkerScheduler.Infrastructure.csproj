@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
@@ -9,6 +9,10 @@
     <ItemGroup>
       <ProjectReference Include="..\WorkerScheduler.Application\WorkerScheduler.Application.csproj" />
       <ProjectReference Include="..\WorkerScheduler.Persistence\WorkerScheduler.Persistence.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="DeepCloner" Version="0.10.4" />
     </ItemGroup>
 
 </Project>
