@@ -50,7 +50,7 @@ namespace WorkerScheduler.Persistence.Migrations
                     b.HasIndex("JobType")
                         .IsUnique();
 
-                    b.ToTable("Jobs");
+                    b.ToTable("Jobs", (string)null);
                 });
 
             modelBuilder.Entity("WorkerScheduler.Domain.Entities.WorkerJobExecutionHistoryEntity", b =>
@@ -69,7 +69,7 @@ namespace WorkerScheduler.Persistence.Migrations
 
                     b.HasIndex("JobId");
 
-                    b.ToTable("JobExecutionHistories");
+                    b.ToTable("JobExecutionHistories", (string)null);
                 });
 
             modelBuilder.Entity("WorkerScheduler.Domain.Entities.WorkerJobExecutionHistoryEntity", b =>

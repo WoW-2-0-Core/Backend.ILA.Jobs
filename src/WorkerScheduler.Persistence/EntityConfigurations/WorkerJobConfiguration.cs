@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using NCrontab;
 using WorkerScheduler.Domain.Entities;
 
 namespace WorkerScheduler.Persistence.EntityConfigurations;
@@ -10,8 +11,12 @@ public class WorkerJobConfiguration : IEntityTypeConfiguration<WorkerJobEntity>
     {
         builder
             .Property(job => job.CronSchedule)
+            .HasConversion<string>(
+                schedule => schedule.ToString(),
+                schedule => CrontabSchedule.Parse(schedule)
+            )
             .HasMaxLength(128)
-            .HasDefaultValue("0 0 * * *")
+            .HasDefaultValue(CrontabSchedule.Parse("0 0 * * *"))
             .IsRequired();
         
         builder

@@ -9,11 +9,9 @@ namespace WorkerScheduler.Persistence.Repositories;
 /// <summary>
 /// Provides functionality for worker job repository
 /// </summary>
-public class WorkerJobRepository(WorkerDbContext dbContext)
-    : EntityRepositoryBase<WorkerJobEntity, WorkerDbContext>(dbContext), IWorkerJobRepository
+public class WorkerJobRepository(WorkerDbContext dbContext) : EntityRepositoryBase<WorkerJobEntity, WorkerDbContext>(dbContext), IWorkerJobRepository
 {
-    public new IQueryable<WorkerJobEntity> Get(Expression<Func<WorkerJobEntity, bool>>? predicate = default) 
-        => base.Get(predicate);
+    public new IQueryable<WorkerJobEntity> Get(Expression<Func<WorkerJobEntity, bool>>? predicate = default) => base.Get(predicate);
 
     public new ValueTask<WorkerJobEntity?> GetByIdAsync(Guid jobId, CancellationToken cancellationToken = default) =>
         base.GetByIdAsync(jobId, cancellationToken);
@@ -24,8 +22,12 @@ public class WorkerJobRepository(WorkerDbContext dbContext)
     public new ValueTask<WorkerJobEntity> UpdateAsync(WorkerJobEntity job, CancellationToken cancellationToken = default) =>
         base.UpdateAsync(job, cancellationToken);
 
-    public new ValueTask<int> UpdateBatchAsync(Expression<Func<SetPropertyCalls<WorkerJobEntity>, SetPropertyCalls<WorkerJobEntity>>> setPropertyCalls, Expression<Func<WorkerJobEntity, bool>>? batchUpdatePredicate = default, CancellationToken cancellationToken = default)
-    => base.UpdateBatchAsync(setPropertyCalls, batchUpdatePredicate, cancellationToken);
+    public new ValueTask<int> UpdateBatchAsync(
+        Expression<Func<SetPropertyCalls<WorkerJobEntity>, SetPropertyCalls<WorkerJobEntity>>> setPropertyCalls,
+        Expression<Func<WorkerJobEntity, bool>>? batchUpdatePredicate = default,
+        CancellationToken cancellationToken = default
+    ) =>
+        base.UpdateBatchAsync(setPropertyCalls, batchUpdatePredicate, cancellationToken);
 
     public new ValueTask<bool> DeleteAsync(WorkerJobEntity job, CancellationToken cancellationToken = default) =>
         base.DeleteAsync(job, cancellationToken);
