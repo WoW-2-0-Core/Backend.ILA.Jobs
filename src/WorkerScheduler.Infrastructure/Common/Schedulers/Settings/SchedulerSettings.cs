@@ -1,6 +1,6 @@
 using WorkerScheduler.Application.Common.EventBus.Models;
 
-namespace WorkerScheduler.Infrastructure.Common.Scheduler.Settings;
+namespace WorkerScheduler.Infrastructure.Common.Schedulers.Settings;
 
 /// <summary>
 /// Represents scheduler settings

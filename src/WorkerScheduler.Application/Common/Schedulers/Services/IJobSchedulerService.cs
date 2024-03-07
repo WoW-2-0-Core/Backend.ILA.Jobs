@@ -2,7 +2,7 @@ using System.Collections.Immutable;
 using WorkerScheduler.Domain.Entities;
 using WorkerScheduler.Domain.Enums;
 
-namespace WorkerScheduler.Application.Common.Scheduler.Services;
+namespace WorkerScheduler.Application.Common.Schedulers.Services;
 
 /// <summary>
 /// Defines the contract for a job scheduler.

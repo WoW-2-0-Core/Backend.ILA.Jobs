@@ -1,11 +1,11 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using WorkerScheduler.Application.Common.Scheduler.Services;
+using WorkerScheduler.Application.Common.Schedulers.Services;
 using WorkerScheduler.Domain.Enums;
 using WorkerScheduler.Persistence.Repositories.Interfaces;
 
-namespace WorkerScheduler.Infrastructure.Common.Scheduler.Services;
+namespace WorkerScheduler.Infrastructure.Common.Schedulers.Services;
 
 public class SchedulerBackgroundService(
     IServiceScopeFactory serviceScopeFactory,

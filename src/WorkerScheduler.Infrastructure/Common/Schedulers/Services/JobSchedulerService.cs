@@ -2,14 +2,14 @@ using System.Collections.Immutable;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using WorkerScheduler.Application.Common.EventBus.Brokers;
-using WorkerScheduler.Application.Common.Scheduler.Events;
-using WorkerScheduler.Application.Common.Scheduler.Services;
+using WorkerScheduler.Application.Common.Schedulers.Events;
+using WorkerScheduler.Application.Common.Schedulers.Services;
 using WorkerScheduler.Domain.Entities;
 using WorkerScheduler.Domain.Enums;
-using WorkerScheduler.Infrastructure.Common.Scheduler.Settings;
+using WorkerScheduler.Infrastructure.Common.Schedulers.Settings;
 using WorkerScheduler.Persistence.Repositories.Interfaces;
 
-namespace WorkerScheduler.Infrastructure.Common.Scheduler.Services;
+namespace WorkerScheduler.Infrastructure.Common.Schedulers.Services;
 
 /// <summary>
 /// Provides job scheduler functionality.

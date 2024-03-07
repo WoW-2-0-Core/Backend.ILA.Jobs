@@ -1,12 +1,12 @@
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 using WorkerScheduler.Application.Common.EventBus.Brokers;
-using WorkerScheduler.Application.Common.Scheduler.Events;
+using WorkerScheduler.Application.Common.Schedulers.Events;
 using WorkerScheduler.Application.Common.Serializers;
 using WorkerScheduler.Infrastructure.Common.EventBus.Services;
 using WorkerScheduler.Infrastructure.Common.EventBus.Settings;
 
-namespace WorkerScheduler.Infrastructure.Common.Worker.Services;
+namespace WorkerScheduler.Infrastructure.Common.Workers.Services;
 
 public class WorkerEventSubscriber(
     IRabbitMqConnectionProvider rabbitMqConnectionProvider,
