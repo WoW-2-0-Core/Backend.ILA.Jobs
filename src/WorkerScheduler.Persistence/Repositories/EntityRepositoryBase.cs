@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using WorkerScheduler.Domain.Common.Entities;
 
 namespace WorkerScheduler.Persistence.Repositories;
@@ -65,6 +66,30 @@ public abstract class EntityRepositoryBase<TEntity, TContext>(TContext dbContext
         await DbContext.SaveChangesAsync(cancellationToken);
 
         return entity;
+    }
+    
+    /// <summary>
+    /// Updates entities in batch
+    /// </summary>
+    /// <param name="batchUpdatePredicate">Predicate to select entities for batch update</param>
+    /// <param name="setPropertyCalls">Batch update value selectors</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Number of updated rows.</returns>
+    protected async ValueTask<int> UpdateBatchAsync(
+        Expression<Func<SetPropertyCalls<TEntity>, SetPropertyCalls<TEntity>>> setPropertyCalls,
+        // IImmutableList<(Func<TEntity, object> propertySelector, Func<TEntity, object> valueSelector)> setPropertyExecutors,
+        Expression<Func<TEntity, bool>>? batchUpdatePredicate = default,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var entities = DbContext.Set<TEntity>().AsQueryable();
+
+        if (batchUpdatePredicate is not null)
+            entities = entities.Where(batchUpdatePredicate);
+
+        return await entities.ExecuteUpdateAsync(setPropertyCalls,
+            cancellationToken
+        );
     }
 
     /// <summary>

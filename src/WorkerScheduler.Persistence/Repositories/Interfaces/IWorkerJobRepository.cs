@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Query;
 using WorkerScheduler.Domain.Entities;
 
 namespace WorkerScheduler.Persistence.Repositories.Interfaces;
@@ -38,6 +39,19 @@ public interface IWorkerJobRepository
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Updated worker job</returns>
     ValueTask<WorkerJobEntity> UpdateAsync(WorkerJobEntity job, CancellationToken cancellationToken = default);
+    
+    /// <summary>
+    /// Updates worker jobs in batch
+    /// </summary>
+    /// <param name="batchUpdatePredicate">Predicate to select worker jobs for batch update</param>
+    /// <param name="setPropertyCalls">Batch update value selectors</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Number of updated rows.</returns>
+    ValueTask<int> UpdateBatchAsync(
+        Expression<Func<SetPropertyCalls<WorkerJobEntity>, SetPropertyCalls<WorkerJobEntity>>> setPropertyCalls,
+        Expression<Func<WorkerJobEntity, bool>>? batchUpdatePredicate = default,
+        CancellationToken cancellationToken = default
+    );
 
     /// <summary>
     /// Deletes an existing worker job
