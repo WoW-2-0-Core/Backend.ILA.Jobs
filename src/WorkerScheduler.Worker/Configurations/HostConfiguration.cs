@@ -26,6 +26,7 @@ public static partial class HostConfiguration
     public static async  ValueTask<IHost> ConfigureAsync(this IHost host)
     {
         await host.MigrateDataBaseSchemasAsync();
+        await host.SeedDataAsync();
         
         return host;
     }

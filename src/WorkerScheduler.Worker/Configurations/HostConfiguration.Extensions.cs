@@ -6,6 +6,7 @@ using WorkerScheduler.Infrastructure.Common.EventBus.Brokers;
 using WorkerScheduler.Infrastructure.Common.EventBus.Settings;
 using WorkerScheduler.Infrastructure.Common.Serializers;
 using WorkerScheduler.Persistence.DataContexts;
+using WorkerScheduler.Worker.Data;
 
 namespace WorkerScheduler.Worker.Configurations;
 
@@ -93,5 +94,18 @@ public static partial class HostConfiguration
         await serviceScopeFactory.MigrateAsync<WorkerDbContext>();
 
         return host;
+    }
+    
+    /// <summary>
+    /// Seeds data into the application's database by creating a service scope and initializing the seed operation.
+    /// </summary>
+    /// <param name="app"></param>
+    /// <returns></returns>
+    private static async ValueTask<IHost> SeedDataAsync(this IHost app)
+    {
+        var serviceScope = app.Services.CreateScope();
+        await serviceScope.ServiceProvider.InitializeSeedAsync();
+
+        return app;
     }
 }
