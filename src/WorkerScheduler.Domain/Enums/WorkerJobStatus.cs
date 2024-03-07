@@ -23,5 +23,10 @@ public enum WorkerJobStatus
     /// <summary>
     /// Refers to a job that is completed
     /// </summary>
-    Completed
+    Completed,
+    
+    /// <summary>
+    /// Refers to a job that has failed
+    /// </summary>
+    Failed
 }
