@@ -1,12 +1,16 @@
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using WorkerScheduler.Application.Common.EventBus.Brokers;
-using WorkerScheduler.Application.Common.Scheduler.Services;
+using WorkerScheduler.Application.Common.Schedulers.Services;
 using WorkerScheduler.Application.Common.Serializers;
+using WorkerScheduler.Domain.Constants;
 using WorkerScheduler.Infrastructure.Common.EventBus.Brokers;
 using WorkerScheduler.Infrastructure.Common.EventBus.Settings;
-using WorkerScheduler.Infrastructure.Common.Scheduler.Services;
+using WorkerScheduler.Infrastructure.Common.Schedulers.EventSubscribers;
+using WorkerScheduler.Infrastructure.Common.Schedulers.Services;
+using WorkerScheduler.Infrastructure.Common.Schedulers.Settings;
 using WorkerScheduler.Infrastructure.Common.Serializers;
+using WorkerScheduler.Infrastructure.Common.Workers.Services;
 using WorkerScheduler.Persistence.DataContexts;
 using WorkerScheduler.Persistence.Repositories;
 using WorkerScheduler.Persistence.Repositories.Interfaces;
@@ -93,6 +97,10 @@ public static partial class HostConfiguration
     /// <returns></returns>
     private static IHostApplicationBuilder AddSchedulerInfrastructure(this IHostApplicationBuilder builder)
     {
+        // Register settings
+        builder.Services
+            .Configure<SchedulerEventBusSettings>(builder.Configuration.GetSection(nameof(SchedulerEventBusSettings)));
+        
         // Register repositories
         builder.Services
             .AddScoped<IWorkerJobRepository, WorkerJobRepository>()
@@ -102,9 +110,32 @@ public static partial class HostConfiguration
         builder.Services
             .AddScoped<IJobSchedulerService, JobSchedulerService>();
         
+        // Register event subscribers
+        builder.Services
+            .AddKeyedSingleton<IEventSubscriber, SchedulerEventSubscriber>(EventBusConstants.WorkerEventSubscriber);
+        
         // Register background services
-        builder.Services.AddHostedService<SchedulerBackgroundService>();
-
+        builder.Services
+            .AddHostedService<SchedulerBackgroundService>();
+        
+        return builder;
+    }
+    
+    /// <summary>
+    /// Adds job scheduler 
+    /// </summary>
+    /// <param name="builder"></param>
+    /// <returns></returns>
+    private static IHostApplicationBuilder AddWorkerInfrastructure(this IHostApplicationBuilder builder)
+    {
+        // Register services
+        builder.Services
+            .AddScoped<IJobSchedulerService, JobSchedulerService>();
+        
+        // Register event subscribers
+        builder.Services
+            .AddKeyedSingleton<IEventSubscriber, WorkerEventSubscriber>(EventBusConstants.WorkerEventSubscriber);
+        
         return builder;
     }
 

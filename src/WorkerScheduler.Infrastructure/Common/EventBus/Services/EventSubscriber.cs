@@ -23,12 +23,12 @@ public abstract class EventSubscriber<TEvent, TEventSubscriber> : IEventSubscrib
     protected IChannel Channel = default!;
 
     public EventSubscriber(IRabbitMqConnectionProvider rabbitMqConnectionProvider,
-        IOptions<EventBusSubscriberSettings<TEventSubscriber>> eventBusSubscriberSettings,
+        IOptions<EventBusSubscriberSettings<TEventSubscriber>> schedulerEventBusSettings,
         IEnumerable<string> queueNames,
         IJsonSerializationSettingsProvider jsonSerializationSettingsProvider)
     {
         _rabbitMqConnectionProvider = rabbitMqConnectionProvider;
-        _eventBusSubscriberSettings = eventBusSubscriberSettings.Value;
+        _eventBusSubscriberSettings = schedulerEventBusSettings.Value;
         _queueNames = queueNames;
 
         _jsonSerializerSettings = jsonSerializationSettingsProvider.Get(true);

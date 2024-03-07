@@ -20,20 +20,26 @@ public class RabbitMqEventBusBroker(
         return new ValueTask(mediator.Publish(@event, cancellationToken));
     }
 
-    public async ValueTask PublishAsync<TEvent>(TEvent @event, string exchange, string routingKey, CancellationToken cancellationToken) where TEvent : Event
+    public async ValueTask PublishAsync<TEvent>(TEvent @event, EventOptions eventOptions, CancellationToken cancellationToken) where TEvent : Event
     {
         var channel = await rabbitMqConnectionProvider.CreateChannelAsync();
-
+        
         var properties = new BasicProperties
         {
-            Persistent = true
+            Persistent = true,
         };
+        
+        if(eventOptions.CorrelationId is not null)
+            properties.CorrelationId = eventOptions.CorrelationId;
+        
+        if(eventOptions.ReplyTo is not null)
+            properties.ReplyTo = eventOptions.ReplyTo;
 
         var serializerSettings = jsonSerializationSettingsProvider.Get(true);
         serializerSettings.ContractResolver = new DefaultContractResolver();
         serializerSettings.TypeNameHandling = TypeNameHandling.All;
 
         var body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(@event, serializerSettings));
-        await channel.BasicPublishAsync(exchange, routingKey, properties, body);
+        await channel.BasicPublishAsync(eventOptions.Exchange, eventOptions.RoutingKey, properties, body);
     }
 }

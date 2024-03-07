@@ -7,7 +7,10 @@ using WorkerScheduler.Application.Common.Schedulers.Services;
 using WorkerScheduler.Domain.Common.Events;
 using WorkerScheduler.Domain.Entities;
 using WorkerScheduler.Domain.Enums;
+using WorkerScheduler.Infrastructure.Common.EventBus.Settings;
+using WorkerScheduler.Infrastructure.Common.Schedulers.EventSubscribers;
 using WorkerScheduler.Infrastructure.Common.Schedulers.Settings;
+using WorkerScheduler.Infrastructure.Common.Workers.Services;
 using WorkerScheduler.Persistence.Repositories.Interfaces;
 
 namespace WorkerScheduler.Infrastructure.Common.Schedulers.Services;
@@ -16,19 +19,14 @@ namespace WorkerScheduler.Infrastructure.Common.Schedulers.Services;
 /// Provides job scheduler functionality.
 /// </summary>
 public class JobSchedulerService(
-    IOptions<SchedulerSettings> schedulerSettings,
+    IOptions<SchedulerEventBusSettings> schedulerEventBusSettings,
+    // IOptions<EventBusSubscriberSettings<WorkerEventSubscriber>> workerEventBusSettings,
     IWorkerJobRepository workerJobRepository, 
     IEventBusBroker eventBusBroker
     ) : IJobSchedulerService
 {
-    private readonly SchedulerSettings _schedulerSettings = schedulerSettings.Value;
+    private readonly SchedulerEventBusSettings _schedulerEventBusSettings = schedulerEventBusSettings.Value;
     
-    public async ValueTask<List<WorkerJobEntity>> GetAllJobsAsync(CancellationToken cancellationToken = default)
-    {
-        // Query all jobs
-        return await workerJobRepository.Get().ToListAsync(cancellationToken: cancellationToken);
-    }
-
     public async ValueTask<(Guid jobId, DateTimeOffset nextJobScheduledTime)?> GetNextScheduledJob(CancellationToken cancellationToken = default)
     {
         // Get the next scheduled job
@@ -111,8 +109,9 @@ public class JobSchedulerService(
                     processJobEvent, 
                     new EventOptions
                     {
-                        Exchange = _schedulerSettings.BusDeclaration.ExchangeName,
-                        RoutingKey = _schedulerSettings.BusDeclaration.RoutingKey,
+                        Exchange = _schedulerEventBusSettings.SchedulerOutgoingBusDeclaration.ExchangeName,
+                        RoutingKey = _schedulerEventBusSettings.SchedulerOutgoingBusDeclaration.RoutingKey,
+                        ReplyTo = _schedulerEventBusSettings.SchedulerOutgoingBusDeclaration.QueueName,
                         CorrelationId = processJobEvent.Id.ToString()
                     },
                     cancellationToken)

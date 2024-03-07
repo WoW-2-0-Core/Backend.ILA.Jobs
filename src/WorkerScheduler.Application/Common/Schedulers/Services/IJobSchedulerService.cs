@@ -9,6 +9,11 @@ namespace WorkerScheduler.Application.Common.Schedulers.Services;
 /// </summary>
 public interface IJobSchedulerService
 {
+    /// <summary>
+    /// Gets next scheduled job if exists
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Next job Id along with next execution time</returns>
     ValueTask<(Guid jobId, DateTimeOffset nextJobScheduledTime)?> GetNextScheduledJob(CancellationToken cancellationToken = default);
 
     /// <summary>
