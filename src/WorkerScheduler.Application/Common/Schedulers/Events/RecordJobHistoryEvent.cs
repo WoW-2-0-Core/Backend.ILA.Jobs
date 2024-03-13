@@ -6,7 +6,7 @@ namespace WorkerScheduler.Application.Common.Schedulers.Events;
 /// <summary>
 /// Represents event that triggers scheduler to record job history
 /// </summary>
-public record RecordJobHistory : Event
+public record RecordJobHistoryEvent : Event
 {
     /// <summary>
     /// Job to be processed

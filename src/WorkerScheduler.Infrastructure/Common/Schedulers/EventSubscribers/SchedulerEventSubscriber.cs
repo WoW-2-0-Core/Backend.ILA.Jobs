@@ -15,12 +15,12 @@ public class SchedulerEventSubscriber(
     IRabbitMqConnectionProvider rabbitMqConnectionProvider,
     IOptions<SchedulerEventBusSettings> schedulerEventBusSettings,
     IJsonSerializationSettingsProvider jsonSerializationSettingsProvider
-) : EventSubscriber<ProcessJobEvent, SchedulerEventSubscriber>(
+) : EventSubscriber<RecordJobHistoryEvent, SchedulerEventSubscriber>(
     rabbitMqConnectionProvider,
     schedulerEventBusSettings,
     [schedulerEventBusSettings.Value.SchedulerIncomingBusDeclaration.QueueName],
     jsonSerializationSettingsProvider
-)
+) 
 {
     private readonly SchedulerEventBusSettings _schedulerEventBusSettings = schedulerEventBusSettings.Value;
 
@@ -32,22 +32,24 @@ public class SchedulerEventSubscriber(
         await Channel.ExchangeDeclareAsync(_schedulerEventBusSettings.SchedulerIncomingBusDeclaration.ExchangeName, ExchangeType.Direct, true);
         await Channel.QueueDeclareAsync(_schedulerEventBusSettings.SchedulerIncomingBusDeclaration.QueueName, true, false, false);
         await Channel.QueueBindAsync(
-            _schedulerEventBusSettings.SchedulerIncomingBusDeclaration.ExchangeName,
-            _schedulerEventBusSettings.SchedulerIncomingBusDeclaration.QueueName,
-            _schedulerEventBusSettings.SchedulerIncomingBusDeclaration.BindingKey
+            queue: _schedulerEventBusSettings.SchedulerIncomingBusDeclaration.QueueName,
+            exchange: _schedulerEventBusSettings.SchedulerIncomingBusDeclaration.ExchangeName,
+            routingKey: _schedulerEventBusSettings.SchedulerIncomingBusDeclaration.RoutingKey
         );
         
         await Channel.ExchangeDeclareAsync(_schedulerEventBusSettings.SchedulerOutgoingBusDeclaration.ExchangeName, ExchangeType.Direct, true);
         await Channel.QueueDeclareAsync(_schedulerEventBusSettings.SchedulerOutgoingBusDeclaration.QueueName, true, false, false);
         await Channel.QueueBindAsync(
-            _schedulerEventBusSettings.SchedulerOutgoingBusDeclaration.ExchangeName,
-            _schedulerEventBusSettings.SchedulerOutgoingBusDeclaration.QueueName,
-            _schedulerEventBusSettings.SchedulerOutgoingBusDeclaration.BindingKey
+            queue: _schedulerEventBusSettings.SchedulerOutgoingBusDeclaration.QueueName,
+            exchange: _schedulerEventBusSettings.SchedulerOutgoingBusDeclaration.ExchangeName,
+            routingKey: _schedulerEventBusSettings.SchedulerOutgoingBusDeclaration.RoutingKey
         );
     }
 
-    protected override ValueTask<(bool Result, bool Redeliver)> ProcessAsync(ProcessJobEvent @event, CancellationToken cancellationToken)
+    protected override ValueTask<(bool Result, bool Redeliver)> ProcessAsync(RecordJobHistoryEvent @event, CancellationToken cancellationToken)
     {
         return new ValueTask<(bool Result, bool Redeliver)>();
     }
+
+    public Func<RecordJobHistoryEvent, CancellationToken, ValueTask<(bool Result, bool Redeliver)>> HandleProcessAsync { get; set; }
 }

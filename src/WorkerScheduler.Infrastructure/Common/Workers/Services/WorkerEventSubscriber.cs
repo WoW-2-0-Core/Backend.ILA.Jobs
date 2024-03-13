@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Options;
+using RabbitMQ.Client;
 using WorkerScheduler.Application.Common.EventBus.Brokers;
 using WorkerScheduler.Application.Common.Schedulers.Events;
 using WorkerScheduler.Application.Common.Serializers;
@@ -19,6 +20,22 @@ public class WorkerEventSubscriber(
     jsonSerializationSettingsProvider
 )
 {
+    private readonly SchedulerEventBusSettings _schedulerEventBusSettings = schedulerEventBusSettings.Value;
+    
+    protected override async ValueTask SetChannelAsync()
+    {
+        await base.SetChannelAsync();
+        
+        // Declare exchange, queues and bind them
+        await Channel.ExchangeDeclareAsync(_schedulerEventBusSettings.SchedulerIncomingBusDeclaration.ExchangeName, ExchangeType.Direct, true);
+        await Channel.QueueDeclareAsync(_schedulerEventBusSettings.SchedulerIncomingBusDeclaration.QueueName, true, false, false);
+        await Channel.QueueBindAsync(
+            _schedulerEventBusSettings.SchedulerIncomingBusDeclaration.QueueName,
+            _schedulerEventBusSettings.SchedulerIncomingBusDeclaration.ExchangeName,
+            _schedulerEventBusSettings.SchedulerIncomingBusDeclaration.BindingKey
+        );
+    }
+    
     protected override ValueTask<(bool Result, bool Redeliver)> ProcessAsync(ProcessJobEvent @event, CancellationToken cancellationToken)
     {
         return new ValueTask<(bool Result, bool Redeliver)>();
