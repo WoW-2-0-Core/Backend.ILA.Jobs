@@ -16,5 +16,5 @@ public record ProcessJobEvent : Event
     /// <summary>
     /// Gets execution history Id if this retry event
     /// </summary>
-    public Guid ParentHistoryId { get; init; } = default!;
+    public Guid? ParentHistoryId { get; init; } = default!;
 }

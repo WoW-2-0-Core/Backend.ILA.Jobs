@@ -14,9 +14,7 @@ using WorkerScheduler.Infrastructure.Common.EventBus.Settings;
 
 namespace WorkerScheduler.Infrastructure.Common.EventBus.Services;
 
-public abstract class EventSubscriber<TEvent, TEventSubscriber> : IEventSubscriber 
-    where TEvent : Event 
-    where TEventSubscriber : IEventSubscriber
+public abstract class EventSubscriber<TEvent, TEventSubscriber> : IEventSubscriber where TEvent : Event where TEventSubscriber : IEventSubscriber
 {
     private readonly CancellationTokenSource _cancellationTokenSource = new();
     private readonly IRabbitMqConnectionProvider _rabbitMqConnectionProvider;
@@ -26,10 +24,12 @@ public abstract class EventSubscriber<TEvent, TEventSubscriber> : IEventSubscrib
     private IEnumerable<EventingBasicConsumer> _consumers = default!;
     protected IChannel Channel = default!;
 
-    public EventSubscriber(IRabbitMqConnectionProvider rabbitMqConnectionProvider,
+    public EventSubscriber(
+        IRabbitMqConnectionProvider rabbitMqConnectionProvider,
         IOptions<EventBusSubscriberSettings<TEventSubscriber>> schedulerEventBusSettings,
         IEnumerable<string> queueNames,
-        IJsonSerializationSettingsProvider jsonSerializationSettingsProvider)
+        IJsonSerializationSettingsProvider jsonSerializationSettingsProvider
+    )
     {
         _rabbitMqConnectionProvider = rabbitMqConnectionProvider;
         _eventBusSubscriberSettings = schedulerEventBusSettings.Value;
@@ -46,7 +46,7 @@ public abstract class EventSubscriber<TEvent, TEventSubscriber> : IEventSubscrib
         await SetConsumerAsync(_cancellationTokenSource.Token);
     }
 
-    
+
     public ValueTask StopAsync(CancellationToken token)
     {
         _cancellationTokenSource.Cancel();
@@ -64,7 +64,7 @@ public abstract class EventSubscriber<TEvent, TEventSubscriber> : IEventSubscrib
     {
         if (cancellationToken.IsCancellationRequested)
             return;
-        
+
         _consumers = await Task.WhenAll(
             _queueNames.Select(
                 async queueName =>
@@ -83,27 +83,18 @@ public abstract class EventSubscriber<TEvent, TEventSubscriber> : IEventSubscrib
     {
         if (cancellationToken.IsCancellationRequested)
             return;
-        
+
         var message = Encoding.UTF8.GetString(ea.Body.ToArray());
         var @event = (TEvent)JsonConvert.DeserializeObject(message, typeof(TEvent), _jsonSerializerSettings)!;
         @event.Redelivered = ea.Redelivered;
-        
-        // Execute with try-catch
-        var processEventTask = () => ProcessAsync(@event, cancellationToken);
-        var result = await processEventTask.GetValueAsync();
+
+        var result = await ProcessAsync(@event, cancellationToken);
 
         // If successful, ack / nack based on the result
-        if (result.IsSuccess)
-        {
-            if (result.Data.Result)
-                await Channel.BasicAckAsync(ea.DeliveryTag, false);
-            else
-                await Channel.BasicNackAsync(ea.DeliveryTag, false, result.Data.Requeue);
-        }
-        else // If failed, nack the message
-            await Channel.BasicNackAsync(ea.DeliveryTag, false, false);
-        
-        
+        if (result.Result)
+            await Channel.BasicAckAsync(ea.DeliveryTag, false);
+        else
+            await Channel.BasicNackAsync(ea.DeliveryTag, false, result.Requeue);
     }
 
     protected abstract ValueTask<(bool Result, bool Requeue)> ProcessAsync(TEvent @event, CancellationToken cancellationToken);

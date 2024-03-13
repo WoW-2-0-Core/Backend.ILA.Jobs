@@ -1,5 +1,4 @@
 using WorkerScheduler.Domain.Common.Events;
-using WorkerScheduler.Domain.Entities;
 
 namespace WorkerScheduler.Application.Common.Schedulers.Events;
 
@@ -9,7 +8,17 @@ namespace WorkerScheduler.Application.Common.Schedulers.Events;
 public record RecordJobHistoryEvent : Event
 {
     /// <summary>
-    /// Job to be processed
+    /// Gets worker job Id
     /// </summary>
-    public WorkerJobExecutionHistoryEntity History { get; set; } = default!;
+    public Guid JobId { get; init; }
+    
+    /// <summary>
+    /// Gets execution history Id if this retry event
+    /// </summary>
+    public Guid? ParentHistoryId { get; init; } = default!;
+    
+    /// <summary>
+    /// Gets success result indicator
+    /// </summary>
+    public bool IsSuccessful { get; init; } = default!;
 }

@@ -20,14 +20,14 @@ public class SchedulerEventSubscriber(
     schedulerEventBusSettings,
     [schedulerEventBusSettings.Value.SchedulerIncomingBusDeclaration.QueueName],
     jsonSerializationSettingsProvider
-) 
+)
 {
     private readonly SchedulerEventBusSettings _schedulerEventBusSettings = schedulerEventBusSettings.Value;
 
     protected override async ValueTask SetChannelAsync()
     {
         await base.SetChannelAsync();
-        
+
         // Declare exchange, queues and bind them
         await Channel.ExchangeDeclareAsync(_schedulerEventBusSettings.SchedulerIncomingBusDeclaration.ExchangeName, ExchangeType.Direct, true);
         await Channel.QueueDeclareAsync(_schedulerEventBusSettings.SchedulerIncomingBusDeclaration.QueueName, true, false, false);
@@ -36,7 +36,7 @@ public class SchedulerEventSubscriber(
             exchange: _schedulerEventBusSettings.SchedulerIncomingBusDeclaration.ExchangeName,
             routingKey: _schedulerEventBusSettings.SchedulerIncomingBusDeclaration.RoutingKey
         );
-        
+
         await Channel.ExchangeDeclareAsync(_schedulerEventBusSettings.SchedulerOutgoingBusDeclaration.ExchangeName, ExchangeType.Direct, true);
         await Channel.QueueDeclareAsync(_schedulerEventBusSettings.SchedulerOutgoingBusDeclaration.QueueName, true, false, false);
         await Channel.QueueBindAsync(
@@ -46,10 +46,8 @@ public class SchedulerEventSubscriber(
         );
     }
 
-    protected override ValueTask<(bool Result, bool Requeue)> ProcessAsync(RecordJobHistoryEvent @event, CancellationToken cancellationToken)
-    {
-        return new ValueTask<(bool Result, bool Requeue)>();
-    }
+    protected override async ValueTask<(bool Result, bool Requeue)> ProcessAsync(RecordJobHistoryEvent @event, CancellationToken cancellationToken) =>
+        HandleProcessAsync is not null ? await HandleProcessAsync(@event, cancellationToken) : (false, false);
 
-    public Func<RecordJobHistoryEvent, CancellationToken, ValueTask<(bool Result, bool Redeliver)>> HandleProcessAsync { get; set; }
+    public Func<RecordJobHistoryEvent, CancellationToken, ValueTask<(bool Result, bool Redeliver)>>? HandleProcessAsync { get; set; }
 }
