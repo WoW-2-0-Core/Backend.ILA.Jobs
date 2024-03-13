@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Query;
+using WorkerScheduler.Domain.Common.Queries;
 using WorkerScheduler.Domain.Entities;
 using WorkerScheduler.Persistence.DataContexts;
 using WorkerScheduler.Persistence.Repositories.Interfaces;
@@ -11,10 +12,15 @@ namespace WorkerScheduler.Persistence.Repositories;
 /// </summary>
 public class WorkerJobRepository(WorkerDbContext dbContext) : EntityRepositoryBase<WorkerJobEntity, WorkerDbContext>(dbContext), IWorkerJobRepository
 {
-    public new IQueryable<WorkerJobEntity> Get(Expression<Func<WorkerJobEntity, bool>>? predicate = default) => base.Get(predicate);
+    public new IQueryable<WorkerJobEntity> Get(Expression<Func<WorkerJobEntity, bool>>? predicate = default, QueryOptions queryOptions = default) =>
+        base.Get(predicate, queryOptions);
 
-    public new ValueTask<WorkerJobEntity?> GetByIdAsync(Guid jobId, CancellationToken cancellationToken = default) =>
-        base.GetByIdAsync(jobId, cancellationToken);
+    public new ValueTask<WorkerJobEntity?> GetByIdAsync(
+        Guid jobId,
+        QueryOptions queryOptions = default,
+        CancellationToken cancellationToken = default
+    ) =>
+        base.GetByIdAsync(jobId, queryOptions, cancellationToken);
 
     public new ValueTask<WorkerJobEntity> CreateAsync(WorkerJobEntity job, CancellationToken cancellationToken = default) =>
         base.CreateAsync(job, cancellationToken);

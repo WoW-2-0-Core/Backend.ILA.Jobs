@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using WorkerScheduler.Domain.Common.Entities;
+using WorkerScheduler.Domain.Common.Queries;
+using WorkerScheduler.Persistence.Extensions;
 
 namespace WorkerScheduler.Persistence.Repositories;
 
@@ -16,26 +18,28 @@ public abstract class EntityRepositoryBase<TEntity, TContext>(TContext dbContext
     /// Retrieves entities from the repository based on optional filtering conditions
     /// </summary>
     /// <param name="predicate">Entity filter predicate</param>
+    /// <param name="queryOptions">Query options</param>
     /// <returns>Queryable source entities</returns>
-    protected IQueryable<TEntity> Get(Expression<Func<TEntity, bool>>? predicate = default)
+    protected IQueryable<TEntity> Get(Expression<Func<TEntity, bool>>? predicate = default, QueryOptions queryOptions = default)
     {
-        var initialQuery = DbContext.Set<TEntity>().AsQueryable();
+        var initialQuery = DbContext.Set<TEntity>().AsQueryable().ApplyTrackingMode(queryOptions.TrackingMode);
 
         if (predicate is not null)
             initialQuery = initialQuery.Where(predicate);
 
         return initialQuery;
     }
-    
+
     /// <summary>
     /// Retrieves entities by its Id
     /// </summary>
     /// <param name="id">Entity Id</param>
+    /// <param name="queryOptions">Query options</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Entity if found, otherwise null</returns>
-    protected async ValueTask<TEntity?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    protected async ValueTask<TEntity?> GetByIdAsync(Guid id, QueryOptions queryOptions = default, CancellationToken cancellationToken = default)
     {
-        var initialQuery = DbContext.Set<TEntity>().AsQueryable();
+        var initialQuery = DbContext.Set<TEntity>().AsQueryable().ApplyTrackingMode(queryOptions.TrackingMode);
 
         return await initialQuery.FirstOrDefaultAsync(entity => entity.Id == id, cancellationToken);
     }
@@ -67,7 +71,7 @@ public abstract class EntityRepositoryBase<TEntity, TContext>(TContext dbContext
 
         return entity;
     }
-    
+
     /// <summary>
     /// Updates entities in batch
     /// </summary>
@@ -87,9 +91,7 @@ public abstract class EntityRepositoryBase<TEntity, TContext>(TContext dbContext
         if (batchUpdatePredicate is not null)
             entities = entities.Where(batchUpdatePredicate);
 
-        return await entities.ExecuteUpdateAsync(setPropertyCalls,
-            cancellationToken
-        );
+        return await entities.ExecuteUpdateAsync(setPropertyCalls, cancellationToken);
     }
 
     /// <summary>

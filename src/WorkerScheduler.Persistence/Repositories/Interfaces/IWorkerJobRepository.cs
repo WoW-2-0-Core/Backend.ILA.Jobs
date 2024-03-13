@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Query;
+using WorkerScheduler.Domain.Common.Queries;
 using WorkerScheduler.Domain.Entities;
 
 namespace WorkerScheduler.Persistence.Repositories.Interfaces;
@@ -13,16 +14,18 @@ public interface IWorkerJobRepository
     /// Retrieves worker jobs based on optional filtering conditions
     /// </summary>
     /// <param name="predicate">Worker job filter predicate</param>
+    /// <param name="queryOptions">Query options</param>
     /// <returns>Queryable source of worker jobs</returns>
-    IQueryable<WorkerJobEntity> Get(Expression<Func<WorkerJobEntity, bool>>? predicate = default);
+    IQueryable<WorkerJobEntity> Get(Expression<Func<WorkerJobEntity, bool>>? predicate = default, QueryOptions queryOptions = default);
 
     /// <summary>
     /// Retrieves worker job by its Id
     /// </summary>
     /// <param name="jobId">Worker job Id</param>
+    /// <param name="queryOptions">Query options</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Worker job if found, otherwise null</returns>
-    ValueTask<WorkerJobEntity?> GetByIdAsync(Guid jobId, CancellationToken cancellationToken = default);
+    ValueTask<WorkerJobEntity?> GetByIdAsync(Guid jobId, QueryOptions queryOptions = default, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Creates a new worker job
@@ -39,7 +42,7 @@ public interface IWorkerJobRepository
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Updated worker job</returns>
     ValueTask<WorkerJobEntity> UpdateAsync(WorkerJobEntity job, CancellationToken cancellationToken = default);
-    
+
     /// <summary>
     /// Updates worker jobs in batch
     /// </summary>
