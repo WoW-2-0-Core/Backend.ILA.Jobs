@@ -8,6 +8,8 @@ using WorkerScheduler.Application.Common.EventBus.Brokers;
 using WorkerScheduler.Application.Common.EventBus.EventSubscribers;
 using WorkerScheduler.Application.Common.Serializers;
 using WorkerScheduler.Domain.Common.Events;
+using WorkerScheduler.Domain.Common.Exceptions;
+using WorkerScheduler.Domain.Extensions;
 using WorkerScheduler.Infrastructure.Common.EventBus.Settings;
 
 namespace WorkerScheduler.Infrastructure.Common.EventBus.Services;
@@ -85,13 +87,24 @@ public abstract class EventSubscriber<TEvent, TEventSubscriber> : IEventSubscrib
         var message = Encoding.UTF8.GetString(ea.Body.ToArray());
         var @event = (TEvent)JsonConvert.DeserializeObject(message, typeof(TEvent), _jsonSerializerSettings)!;
         @event.Redelivered = ea.Redelivered;
-        var result = await ProcessAsync(@event, cancellationToken);
         
-        if (result.Result)
-            await Channel.BasicAckAsync(ea.DeliveryTag, false);
-        else
-            await Channel.BasicNackAsync(ea.DeliveryTag, false, result.Redeliver);
+        // Execute with try-catch
+        var processEventTask = () => ProcessAsync(@event, cancellationToken);
+        var result = await processEventTask.GetValueAsync();
+
+        // If successful, ack / nack based on the result
+        if (result.IsSuccess)
+        {
+            if (result.Data.Result)
+                await Channel.BasicAckAsync(ea.DeliveryTag, false);
+            else
+                await Channel.BasicNackAsync(ea.DeliveryTag, false, result.Data.Requeue);
+        }
+        else // If failed, nack the message
+            await Channel.BasicNackAsync(ea.DeliveryTag, false, false);
+        
+        
     }
 
-    protected abstract ValueTask<(bool Result, bool Redeliver)> ProcessAsync(TEvent @event, CancellationToken cancellationToken);
+    protected abstract ValueTask<(bool Result, bool Requeue)> ProcessAsync(TEvent @event, CancellationToken cancellationToken);
 }

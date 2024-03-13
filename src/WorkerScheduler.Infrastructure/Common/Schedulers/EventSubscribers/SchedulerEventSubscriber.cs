@@ -46,9 +46,9 @@ public class SchedulerEventSubscriber(
         );
     }
 
-    protected override ValueTask<(bool Result, bool Redeliver)> ProcessAsync(RecordJobHistoryEvent @event, CancellationToken cancellationToken)
+    protected override ValueTask<(bool Result, bool Requeue)> ProcessAsync(RecordJobHistoryEvent @event, CancellationToken cancellationToken)
     {
-        return new ValueTask<(bool Result, bool Redeliver)>();
+        return new ValueTask<(bool Result, bool Requeue)>();
     }
 
     public Func<RecordJobHistoryEvent, CancellationToken, ValueTask<(bool Result, bool Redeliver)>> HandleProcessAsync { get; set; }
