@@ -21,11 +21,6 @@ public enum WorkerJobStatus
     Running, 
     
     /// <summary>
-    /// Refers to a job that is completed
-    /// </summary>
-    Completed,
-    
-    /// <summary>
     /// Refers to a job that has failed
     /// </summary>
     Failed

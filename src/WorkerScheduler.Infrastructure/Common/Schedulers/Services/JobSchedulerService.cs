@@ -4,14 +4,12 @@ using Microsoft.Extensions.Options;
 using WorkerScheduler.Application.Common.EventBus.Brokers;
 using WorkerScheduler.Application.Common.Schedulers.Events;
 using WorkerScheduler.Application.Common.Schedulers.Services;
+using WorkerScheduler.Application.Common.WorkerJobExecutionHistories.Services;
+using WorkerScheduler.Application.Common.WorkerJobs.Services;
 using WorkerScheduler.Domain.Common.Events;
 using WorkerScheduler.Domain.Entities;
 using WorkerScheduler.Domain.Enums;
-using WorkerScheduler.Infrastructure.Common.EventBus.Settings;
-using WorkerScheduler.Infrastructure.Common.Schedulers.EventSubscribers;
 using WorkerScheduler.Infrastructure.Common.Schedulers.Settings;
-using WorkerScheduler.Infrastructure.Common.Workers.Services;
-using WorkerScheduler.Persistence.Repositories.Interfaces;
 
 namespace WorkerScheduler.Infrastructure.Common.Schedulers.Services;
 
@@ -20,8 +18,8 @@ namespace WorkerScheduler.Infrastructure.Common.Schedulers.Services;
 /// </summary>
 public class JobSchedulerService(
     IOptions<SchedulerEventBusSettings> schedulerEventBusSettings,
-    // IOptions<EventBusSubscriberSettings<WorkerEventSubscriber>> workerEventBusSettings,
-    IWorkerJobRepository workerJobRepository, 
+    IWorkerJobService workerJobRepository, 
+    IWorkerJobExecutionHistoryService workerJobExecutionHistoryService,
     IEventBusBroker eventBusBroker
     ) : IJobSchedulerService
 {
@@ -59,40 +57,36 @@ public class JobSchedulerService(
         return scheduledJobs.Any() ? (scheduledJobs.First().Job.Id, scheduledJobs.First().Schedule) : null;
     }
 
-    public async ValueTask<IImmutableList<WorkerJobEntity>> GetScheduledOrFailedJobsAsync(CancellationToken cancellationToken = default)
-    {
-        // Query all jobs that needs to be run
-        var jobs = await workerJobRepository.Get(job => job.Status == WorkerJobStatus.Scheduled || job.Status == WorkerJobStatus.Failed)
-            .ToListAsync(cancellationToken: cancellationToken);
-
-        // Filter failed jobs and scheduled jobs
-        var failedJobEvents = jobs.Where(job => job.Status == WorkerJobStatus.Failed);
-        // var scheduledJobs = jobs.Where(job => job.Status == WorkerJobStatus.Scheduled);
-
-        // Publish failed jobs to the queue
-
-        // failedJobEvents
-        return failedJobEvents.ToImmutableList();
-    }
-
-    public async ValueTask UpdateJobsStatus(
+    public async ValueTask UpdateJobsStatusAsync(
         WorkerJobStatus status,
         CancellationToken cancellationToken = default,
         params WorkerJobEntity[] jobs
     )
     {
         // Update job status
-        var updatedJobsCount = await workerJobRepository.UpdateBatchAsync(
-            setPropertyCalls => setPropertyCalls.SetProperty(workerJob => workerJob.Status, valueSelector => status),
-            workerJob => jobs.Select(job => job.Id).Contains(workerJob.Id),
-            cancellationToken
-        );
+        var updatedJobsCount = await UpdateJobsStatusAsync(status, cancellationToken, jobs.Select(job => job.Id).ToArray());
         
         if(updatedJobsCount < jobs.Length)
             throw new InvalidOperationException("Failed to update job status");
 
         foreach (var job in jobs)
             job.Status = status;
+    }
+    
+    private async ValueTask<int> UpdateJobsStatusAsync(
+        WorkerJobStatus status,
+        CancellationToken cancellationToken = default,
+        params Guid[] jobsId
+    )
+    {
+        // Update job status
+        var updatedJobsCount = await workerJobRepository.UpdateBatchAsync(
+            setPropertyCalls => setPropertyCalls.SetProperty(workerJob => workerJob.Status, valueSelector => status),
+            workerJob => jobsId.Contains(workerJob.Id),
+            cancellationToken
+        );
+
+        return updatedJobsCount;
     }
 
     public async ValueTask PublishJobsAsync(CancellationToken cancellationToken = default, params WorkerJobEntity[] jobs)
@@ -111,7 +105,6 @@ public class JobSchedulerService(
                     {
                         Exchange = _schedulerEventBusSettings.SchedulerOutgoingBusDeclaration.ExchangeName,
                         RoutingKey = _schedulerEventBusSettings.SchedulerOutgoingBusDeclaration.RoutingKey,
-                        ReplyTo = _schedulerEventBusSettings.SchedulerOutgoingBusDeclaration.QueueName,
                         CorrelationId = processJobEvent.Id.ToString()
                     },
                     cancellationToken)
@@ -119,5 +112,11 @@ public class JobSchedulerService(
             .ToImmutableList();
 
         await Task.WhenAll(publishJobTasks);
+    }
+
+    public async ValueTask CreateJobHistoryAsync(WorkerJobExecutionHistoryEntity history, CancellationToken cancellationToken = default)
+    {
+        await UpdateJobsStatusAsync(history.IsSuccessful ? WorkerJobStatus.Scheduled : WorkerJobStatus.Failed, cancellationToken, history.JobId);
+        await workerJobExecutionHistoryService.CreateAsync(history, cancellationToken);
     }
 }

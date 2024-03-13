@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Query;
 using WorkerScheduler.Domain.Common.Queries;
 using WorkerScheduler.Domain.Entities;
 
@@ -25,4 +26,17 @@ public interface IWorkerJobService
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Worker job if found, otherwise null</returns>
     ValueTask<WorkerJobEntity?> GetByIdAsync(Guid workerJobId, QueryOptions queryOptions = default, CancellationToken cancellationToken = default);
+    
+    /// <summary>
+    /// Updates worker jobs in batch
+    /// </summary>
+    /// <param name="batchUpdatePredicate">Predicate to select worker jobs for batch update</param>
+    /// <param name="setPropertyCalls">Batch update value selectors</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Number of updated rows.</returns>
+    ValueTask<int> UpdateBatchAsync(
+        Expression<Func<SetPropertyCalls<WorkerJobEntity>, SetPropertyCalls<WorkerJobEntity>>> setPropertyCalls,
+        Expression<Func<WorkerJobEntity, bool>>? batchUpdatePredicate = default,
+        CancellationToken cancellationToken = default
+    );
 }

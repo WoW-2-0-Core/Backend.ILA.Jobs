@@ -60,7 +60,8 @@ public class WorkerEventSubscriber(
         {
             JobId = @event.Job.Id,
             ParentHistoryId = @event.ParentHistoryId,
-            IsSuccessful = executeJobResult.IsSuccess
+            IsSuccessful = executeJobResult.IsSuccess,
+            RetryCount = @event.ParentHistoryId.HasValue ? (byte)(@event.RetryCount + 1) : default
         };
 
         await eventBusBroker.PublishAsync(
@@ -69,7 +70,6 @@ public class WorkerEventSubscriber(
             {
                 Exchange = _schedulerEventBusSettings.SchedulerIncomingBusDeclaration.ExchangeName,
                 RoutingKey = _schedulerEventBusSettings.SchedulerIncomingBusDeclaration.RoutingKey,
-                ReplyTo = _schedulerEventBusSettings.SchedulerIncomingBusDeclaration.QueueName,
                 CorrelationId = recordJobHistoryEvent.Id.ToString()
             },
             cancellationToken

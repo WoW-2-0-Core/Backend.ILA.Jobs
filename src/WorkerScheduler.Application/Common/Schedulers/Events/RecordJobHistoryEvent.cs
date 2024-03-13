@@ -18,6 +18,11 @@ public record RecordJobHistoryEvent : Event
     public Guid? ParentHistoryId { get; init; } = default!;
     
     /// <summary>
+    /// Gets or sets retry count
+    /// </summary>
+    public byte RetryCount { get; set; }
+    
+    /// <summary>
     /// Gets success result indicator
     /// </summary>
     public bool IsSuccessful { get; init; } = default!;

@@ -4,6 +4,7 @@ using WorkerScheduler.Application.Common.EventBus.Brokers;
 using WorkerScheduler.Application.Common.EventBus.EventSubscribers;
 using WorkerScheduler.Application.Common.Schedulers.Services;
 using WorkerScheduler.Application.Common.Serializers;
+using WorkerScheduler.Application.Common.WorkerJobExecutionHistories.Services;
 using WorkerScheduler.Application.Common.WorkerJobs.Services;
 using WorkerScheduler.Domain.Constants;
 using WorkerScheduler.Infrastructure.Common.EventBus.Brokers;
@@ -12,6 +13,7 @@ using WorkerScheduler.Infrastructure.Common.Schedulers.EventSubscribers;
 using WorkerScheduler.Infrastructure.Common.Schedulers.Services;
 using WorkerScheduler.Infrastructure.Common.Schedulers.Settings;
 using WorkerScheduler.Infrastructure.Common.Serializers;
+using WorkerScheduler.Infrastructure.Common.WorkerJobExecutionHistories.Services;
 using WorkerScheduler.Infrastructure.Common.WorkerJobs.Services;
 using WorkerScheduler.Infrastructure.Common.Workers.Services;
 using WorkerScheduler.Infrastructure.Common.Workers.Settings;
@@ -113,6 +115,7 @@ public static partial class HostConfiguration
         // Register services
         builder.Services
             .AddScoped<IWorkerJobService, WorkerJobService>()
+            .AddScoped<IWorkerJobExecutionHistoryService, WorkerJobExecutionHistoryService>()
             .AddScoped<IJobSchedulerService, JobSchedulerService>();
         
         // Register event subscribers
@@ -136,10 +139,6 @@ public static partial class HostConfiguration
         // Register settings
         builder.Services
             .Configure<WorkerEventBusSettings>(builder.Configuration.GetSection(nameof(WorkerEventBusSettings)));
-        
-        // Register services
-        builder.Services
-            .AddScoped<IJobSchedulerService, JobSchedulerService>();
         
         // Register event subscribers
         builder.Services
