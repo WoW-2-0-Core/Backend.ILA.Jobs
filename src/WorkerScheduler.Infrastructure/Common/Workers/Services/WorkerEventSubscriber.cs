@@ -6,16 +6,18 @@ using WorkerScheduler.Application.Common.Serializers;
 using WorkerScheduler.Infrastructure.Common.EventBus.Services;
 using WorkerScheduler.Infrastructure.Common.Schedulers.EventSubscribers;
 using WorkerScheduler.Infrastructure.Common.Schedulers.Settings;
+using WorkerScheduler.Infrastructure.Common.Workers.Settings;
 
 namespace WorkerScheduler.Infrastructure.Common.Workers.Services;
 
 public class WorkerEventSubscriber(
     IRabbitMqConnectionProvider rabbitMqConnectionProvider,
     IOptions<SchedulerEventBusSettings> schedulerEventBusSettings,
-    IJsonSerializationSettingsProvider jsonSerializationSettingsProvider
-) : EventSubscriber<ProcessJobEvent, SchedulerEventSubscriber>(
+    IOptions<WorkerEventBusSettings> workerEventBusSettings,
+    IJsonSerializationSettingsProvider jsonSerializationSettingsProvider,
+) : EventSubscriber<ProcessJobEvent, WorkerEventSubscriber>(
     rabbitMqConnectionProvider,
-    schedulerEventBusSettings,
+    workerEventBusSettings,
     [schedulerEventBusSettings.Value.SchedulerOutgoingBusDeclaration.QueueName],
     jsonSerializationSettingsProvider
 )

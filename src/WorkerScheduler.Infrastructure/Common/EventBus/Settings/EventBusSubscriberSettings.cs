@@ -12,4 +12,9 @@ public abstract record EventBusSubscriberSettings<TSubscriber> where TSubscriber
     /// Gets prefetch message count
     /// </summary>
     public ushort PrefetchCount { get; init; }
+    
+    /// <summary>
+    /// Gets indicates whether to auto acknowledge message
+    /// </summary>
+    public bool AutoAck { get; set; }
 }

@@ -16,6 +16,7 @@ public abstract class EventSubscriber<TEvent, TEventSubscriber> : IEventSubscrib
     where TEvent : Event 
     where TEventSubscriber : IEventSubscriber
 {
+    private readonly CancellationTokenSource _cancellationTokenSource = new();
     private readonly IRabbitMqConnectionProvider _rabbitMqConnectionProvider;
     private readonly EventBusSubscriberSettings<TEventSubscriber> _eventBusSubscriberSettings;
     private readonly IEnumerable<string> _queueNames;
@@ -40,12 +41,13 @@ public abstract class EventSubscriber<TEvent, TEventSubscriber> : IEventSubscrib
     public async ValueTask StartAsync(CancellationToken token)
     {
         await SetChannelAsync();
-        await SetConsumerAsync(token);
+        await SetConsumerAsync(_cancellationTokenSource.Token);
     }
 
     
     public ValueTask StopAsync(CancellationToken token)
     {
+        _cancellationTokenSource.Cancel();
         Channel.Dispose();
         return ValueTask.CompletedTask;
     }
@@ -58,13 +60,16 @@ public abstract class EventSubscriber<TEvent, TEventSubscriber> : IEventSubscrib
 
     protected virtual async ValueTask SetConsumerAsync(CancellationToken cancellationToken)
     {
+        if (cancellationToken.IsCancellationRequested)
+            return;
+        
         _consumers = await Task.WhenAll(
             _queueNames.Select(
                 async queueName =>
                 {
                     var consumer = new EventingBasicConsumer(Channel);
                     consumer.Received += async (sender, args) => await HandleInternalAsync(sender, args, cancellationToken);
-                    await Channel.BasicConsumeAsync(queueName, false, consumer);
+                    await Channel.BasicConsumeAsync(queueName, _eventBusSubscriberSettings.AutoAck, consumer);
 
                     return consumer;
                 }
@@ -74,11 +79,14 @@ public abstract class EventSubscriber<TEvent, TEventSubscriber> : IEventSubscrib
 
     protected virtual async ValueTask HandleInternalAsync(object? sender, BasicDeliverEventArgs ea, CancellationToken cancellationToken)
     {
+        if (cancellationToken.IsCancellationRequested)
+            return;
+        
         var message = Encoding.UTF8.GetString(ea.Body.ToArray());
         var @event = (TEvent)JsonConvert.DeserializeObject(message, typeof(TEvent), _jsonSerializerSettings)!;
         @event.Redelivered = ea.Redelivered;
         var result = await ProcessAsync(@event, cancellationToken);
-
+        
         if (result.Result)
             await Channel.BasicAckAsync(ea.DeliveryTag, false);
         else

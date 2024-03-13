@@ -5,7 +5,7 @@ using WorkerScheduler.Infrastructure.Common.Schedulers.EventSubscribers;
 namespace WorkerScheduler.Infrastructure.Common.Schedulers.Settings;
 
 /// <summary>
-/// Represents scheduler settings
+/// Represents scheduler event bus settings
 /// </summary>
 public record SchedulerEventBusSettings : EventBusSubscriberSettings<SchedulerEventSubscriber>
 {
